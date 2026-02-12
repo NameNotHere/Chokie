@@ -3,7 +3,7 @@
 #include <algorithm>
 
 // Remove last character
-void remove_last_char(Editor &ed)
+void remove_last_char(s_editor &ed)
 {
     if (ed.cursor_col > 0)
     {
@@ -20,7 +20,7 @@ void remove_last_char(Editor &ed)
 }
 
 // Insert mode functions
-static void handle_char_input(Editor &ed)
+static void handle_char_input(s_editor &ed)
 {
     int key = GetCharPressed();
     while (key > 0)
@@ -35,7 +35,7 @@ static void handle_char_input(Editor &ed)
     }
 }
 
-static void handle_tab(Editor &ed)
+static void handle_tab(s_editor &ed)
 {
     if (IsKeyPressed(KEY_TAB))
     {
@@ -44,7 +44,21 @@ static void handle_tab(Editor &ed)
     }
 }
 
-static void handle_enter(Editor &ed)
+void    handle_scroll(s_editor &ed)
+{
+    if (IsKeyPressed(KEY_UP))
+    {
+        ed.window_scroll = ed.window_scroll + 30;
+    }
+    else if (IsKeyPressed(KEY_DOWN))
+    {
+        ed.window_scroll = ed.window_scroll - 30;
+    }
+    if (ed.window_scroll < 0) ed.window_scroll = 0;
+    if (ed.window_scroll > (int)ed.lines.size() * 30) ed.window_scroll = (int)ed.lines.size() * 30;
+}
+
+static void handle_enter(s_editor &ed)
 {
     if (IsKeyPressed(KEY_ENTER))
     {
@@ -56,7 +70,7 @@ static void handle_enter(Editor &ed)
     }
 }
 
-static void handle_backspace(Editor &ed)
+static void handle_backspace(s_editor &ed)
 {
     if (IsKeyPressed(KEY_BACKSPACE))
     {
@@ -64,16 +78,15 @@ static void handle_backspace(Editor &ed)
     }
 }
 
-static void handle_escape(Editor &ed)
+static void handle_escape(s_editor &ed)
 {
     if (IsKeyPressed(KEY_ESCAPE))
     {
         ed.insert_mode = false;
-        usleep(10000);
     }
 }
 
-void handle_insert_mode(Editor &ed)
+void handle_insert_mode(s_editor &ed)
 {
     handle_char_input(ed);
     handle_tab(ed);
@@ -83,7 +96,7 @@ void handle_insert_mode(Editor &ed)
 }
 
 // Normal mode functions
-void handle_normal_mode(Editor &ed)
+void handle_normal_mode(s_editor &ed)
 {
     if (IsKeyPressed(KEY_H)) if (ed.cursor_col > 0) ed.cursor_col--;
     if (IsKeyPressed(KEY_L)) if (ed.cursor_col < (int)ed.lines[ed.cursor_row].size()) ed.cursor_col++;
@@ -92,39 +105,11 @@ void handle_normal_mode(Editor &ed)
     if (IsKeyPressed(KEY_I)) ed.insert_mode = true;
 }
 
-void keyboard_input(Editor &ed)
+void keyboard_input(s_editor &ed)
 {
     if (ed.insert_mode)
         handle_insert_mode(ed);
     else
         handle_normal_mode(ed);
-}
-
-void draw_text(Editor &ed)
-{
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-
-    int font_size = 30;
-    int y_start = 200;
-    int cursor_x = 50;
-    int cursor_y = y_start + ed.cursor_row * font_size;
-
-    for (int row = 0; row < (int)ed.lines.size(); row++)
-    {
-        std::string line = ed.lines[row];
-        DrawText(line.c_str(), 50, y_start + row * font_size, font_size, BLACK);
-        if (row == ed.cursor_row)
-        {
-            std::string before_cursor = line.substr(0, ed.cursor_col);
-            cursor_x = 50 + MeasureText(before_cursor.c_str(), font_size);
-        }
-    }
-
-    if (ed.insert_mode)
-        DrawLine(cursor_x, cursor_y, cursor_x, cursor_y + font_size, RED);
-    else
-        DrawRectangle(cursor_x, cursor_y, 10, font_size, RED);
-
-    EndDrawing();
+    handle_scroll(ed);
 }
