@@ -44,18 +44,35 @@ static void handle_tab(s_editor &ed)
     }
 }
 
-void    handle_scroll(s_editor &ed)
+void handle_scroll(s_editor &ed)
 {
-    if (IsKeyPressed(KEY_UP))
+    float dt = GetFrameTime();   // frame time (smooth movement)
+    float scroll_speed = 10.0f; // pixels per second
+    float friction = 8.0f;       // how fast it slows down
+    float max_scroll = ed.lines.size() * 30.0f;
+
+    // Continuous input
+    if (IsKeyDown(KEY_UP))
+        ed.scroll_velocity = -scroll_speed;
+    else if (IsKeyDown(KEY_DOWN))
+        ed.scroll_velocity = scroll_speed;
+    else
     {
-        ed.window_scroll = ed.window_scroll + 30;
+        // Apply smooth deceleration
+        ed.scroll_velocity -= ed.scroll_velocity * friction * dt;
     }
-    else if (IsKeyPressed(KEY_DOWN))
-    {
-        ed.window_scroll = ed.window_scroll - 30;
-    }
-    if (ed.window_scroll < 0) ed.window_scroll = 0;
-    if (ed.window_scroll > (int)ed.lines.size() * 30) ed.window_scroll = (int)ed.lines.size() * 30;
+
+    ed.window_scroll += ed.scroll_velocity * dt;
+
+    // Clamp scroll
+    max_scroll = ed.lines.size() * 30.0f;
+
+    if (ed.window_scroll < 0)
+        ed.window_scroll = 0;
+
+    if (ed.window_scroll > max_scroll)
+        ed.window_scroll = max_scroll;
+    ed.cursor_row = ed.cursor_row * scroll_speed * dt;
 }
 
 static void handle_enter(s_editor &ed)

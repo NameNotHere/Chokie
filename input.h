@@ -5,6 +5,8 @@
 #	include	<string>
 #	include	"raylib.h"
 
+#	define	NEWLINE_OFFSET	5
+
 enum e_mode
 {
 	NORMAL,
@@ -18,7 +20,8 @@ struct  s_editor
     std::vector<std::string>	lines;
     int							cursor_row;
     int							cursor_col;
-	int							window_scroll;
+	float						window_scroll;
+	float						scroll_velocity;
     bool						insert_mode;
 	
 };

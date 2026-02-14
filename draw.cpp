@@ -13,7 +13,8 @@ void draw_text(s_editor &ed)
     for (int row = 0; row < (int)ed.lines.size(); row++)
     {
         std::string line = ed.lines[row];
-        DrawText(line.c_str(), 50, y_start + (row - ed.window_scroll) * font_size / 2, font_size, BLACK);
+        DrawText(line.c_str(), 5, y_start + (row - ed.window_scroll) * font_size, font_size, BLACK);
+        DrawLine(50, y_start + (row - ed.window_scroll) * font_size + font_size, 50 + MeasureText(line.c_str(), font_size), y_start + (row - ed.window_scroll) * font_size + font_size, BLACK);
         if (row == ed.cursor_row)
         {
             std::string before_cursor = line.substr(0, ed.cursor_col);
