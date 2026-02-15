@@ -50,5 +50,6 @@ int main(int ac, char **av)
     for (auto &line : ed.lines)
         std::cout << line << std::endl;
 
+    save_to_file(ed, (std::string)av[1]);
     return 0;
 }

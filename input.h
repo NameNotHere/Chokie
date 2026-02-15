@@ -40,4 +40,6 @@ void	draw_cursor(s_editor &ed);
 
 // file handling
 std::vector<std::string> read_file(const std::string &filename);
+void save_to_file(const s_editor &ed, const std::string &filename);
+
 #endif
