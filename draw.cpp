@@ -18,7 +18,7 @@ void draw_text(s_editor &ed)
         if (row == ed.cursor_row)
         {
             std::string before_cursor = line.substr(0, ed.cursor_col);
-            cursor_x = 50 + MeasureText(before_cursor.c_str(), font_size);
+            cursor_x = MeasureText(before_cursor.c_str(), font_size);
         }
     }
 

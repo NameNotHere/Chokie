@@ -25,8 +25,15 @@ static void handle_char_input(s_editor &ed)
     int key = GetCharPressed();
     while (key > 0)
     {
+        if (ed.just_enter_input_mode)
+        {
+            while (key > 0)
+                key = GetCharPressed();
+            ed.just_enter_input_mode = false;
+            continue ;
+        }
         char c = static_cast<char>(key);
-        if (c >= 32 && c <= 126)
+        if (c >= 32 && c <= 126 && ed.insert_mode == true)
         {
             ed.lines[ed.cursor_row].insert(ed.cursor_col, 1, c);
             ed.cursor_col++;
@@ -51,20 +58,13 @@ void handle_scroll(s_editor &ed)
     float friction = 8.0f;       // how fast it slows down
     float max_scroll = ed.lines.size() * 30.0f;
 
-    // Continuous input
     if (IsKeyDown(KEY_UP))
         ed.scroll_velocity = -scroll_speed;
     else if (IsKeyDown(KEY_DOWN))
         ed.scroll_velocity = scroll_speed;
     else
-    {
-        // Apply smooth deceleration
         ed.scroll_velocity -= ed.scroll_velocity * friction * dt;
-    }
-
     ed.window_scroll += ed.scroll_velocity * dt;
-
-    // Clamp scroll
     max_scroll = ed.lines.size() * 30.0f;
 
     if (ed.window_scroll < 0)
@@ -115,11 +115,35 @@ void handle_insert_mode(s_editor &ed)
 // Normal mode functions
 void handle_normal_mode(s_editor &ed)
 {
-    if (IsKeyPressed(KEY_H)) if (ed.cursor_col > 0) ed.cursor_col--;
-    if (IsKeyPressed(KEY_L)) if (ed.cursor_col < (int)ed.lines[ed.cursor_row].size()) ed.cursor_col++;
-    if (IsKeyPressed(KEY_K)) if (ed.cursor_row > 0) ed.cursor_row--, ed.cursor_col = std::min(ed.cursor_col, (int)ed.lines[ed.cursor_row].size());
-    if (IsKeyPressed(KEY_J)) if (ed.cursor_row < (int)ed.lines.size() - 1) ed.cursor_row++, ed.cursor_col = std::min(ed.cursor_col, (int)ed.lines[ed.cursor_row].size());
-    if (IsKeyPressed(KEY_I)) ed.insert_mode = true;
+    if (IsKeyPressed(KEY_H))
+    {
+        if (ed.cursor_col > 0) ed.cursor_col--;
+    }
+    if (IsKeyPressed(KEY_L))
+    {
+        if (ed.cursor_col < (int)ed.lines[ed.cursor_row].size()) ed.cursor_col++;
+    }
+    if (IsKeyPressed(KEY_K))
+    {
+        if (ed.cursor_row > 0)
+        {
+            ed.cursor_row--;
+            ed.cursor_col = std::min(ed.cursor_col, (int)ed.lines[ed.cursor_row].size());
+        }
+    }
+    if (IsKeyPressed(KEY_J))
+    {
+        if (ed.cursor_row < (int)ed.lines.size() - 1)
+        {
+            ed.cursor_row++;
+            ed.cursor_col = std::min(ed.cursor_col, (int)ed.lines[ed.cursor_row].size());
+        }
+    }
+    if (IsKeyPressed(KEY_I))
+    {
+        ed.just_enter_input_mode = true;
+        ed.insert_mode = true;
+    }
 }
 
 void keyboard_input(s_editor &ed)

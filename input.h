@@ -23,7 +23,8 @@ struct  s_editor
 	float						window_scroll;
 	float						scroll_velocity;
     bool						insert_mode;
-	
+	bool						just_enter_input_mode;
+
 };
 
 // Input functions
