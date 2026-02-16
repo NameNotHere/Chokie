@@ -26,6 +26,5 @@ void draw_text(s_editor &ed)
         DrawLine(cursor_x, cursor_y, cursor_x, cursor_y + font_size, RED);
     else
         DrawRectangle(cursor_x, cursor_y, 10, font_size, RED);
-
     EndDrawing();
 }

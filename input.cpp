@@ -1,8 +1,6 @@
 #include "input.h"
 #include <unistd.h>
-#include <algorithm>
 
-// Remove last character
 void remove_last_char(s_editor &ed)
 {
     if (ed.cursor_col > 0)
@@ -19,10 +17,11 @@ void remove_last_char(s_editor &ed)
     }
 }
 
-// Insert mode functions
 static void handle_char_input(s_editor &ed)
 {
     int key = GetCharPressed();
+    char c;
+    
     while (key > 0)
     {
         if (ed.just_enter_input_mode)
@@ -32,7 +31,7 @@ static void handle_char_input(s_editor &ed)
             ed.just_enter_input_mode = false;
             continue ;
         }
-        char c = static_cast<char>(key);
+        c = static_cast<char>(key);
         if (c >= 32 && c <= 126 && ed.insert_mode == true)
         {
             ed.lines[ed.cursor_row].insert(ed.cursor_col, 1, c);
@@ -65,6 +64,8 @@ void handle_scroll(s_editor &ed)
     else
         ed.scroll_velocity -= ed.scroll_velocity * friction * dt;
     ed.window_scroll += ed.scroll_velocity * dt;
+    ed.cursor_row = (int)(ed.window_scroll / 30.0f);
+    ed.cursor_col = std::min(ed.cursor_col, (int)ed.lines[ed.cursor_row].size());
     max_scroll = ed.lines.size() * 30.0f;
 
     if (ed.window_scroll < 0)
@@ -90,9 +91,7 @@ static void handle_enter(s_editor &ed)
 static void handle_backspace(s_editor &ed)
 {
     if (IsKeyPressed(KEY_BACKSPACE))
-    {
         remove_last_char(ed);
-    }
 }
 
 static void handle_escape(s_editor &ed)
@@ -112,17 +111,13 @@ void handle_insert_mode(s_editor &ed)
     handle_escape(ed);
 }
 
-// Normal mode functions
 void handle_normal_mode(s_editor &ed)
 {
     if (IsKeyPressed(KEY_H))
-    {
         if (ed.cursor_col > 0) ed.cursor_col--;
-    }
     if (IsKeyPressed(KEY_L))
-    {
-        if (ed.cursor_col < (int)ed.lines[ed.cursor_row].size()) ed.cursor_col++;
-    }
+        if (ed.cursor_col < (int)ed.lines[ed.cursor_row].size())
+            ed.cursor_col++;
     if (IsKeyPressed(KEY_K))
     {
         if (ed.cursor_row > 0)
