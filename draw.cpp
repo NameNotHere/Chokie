@@ -1,30 +1,48 @@
 #include "input.h"
 
-void draw_text(s_editor &ed)
+void draw_text(c_editor &ed)
 {
+    if (ed.files.empty())
+        return;
+
+    s_file &file = ed.files[0];
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
     int font_size = 30;
-    int y_start = 100;
-    int cursor_x = 50;
-    int cursor_y = y_start + ed.cursor_row * font_size;
+    int y_start = 5;
+    int x_start = 5;
 
-    for (int row = 0; row < (int)ed.lines.size(); row++)
+    int first_visible_line = ed.window_scroll / font_size;
+    int max_visible_lines = GetScreenHeight() / font_size + 1;
+
+    for (int i = 0; i < max_visible_lines; i++)
     {
-        std::string line = ed.lines[row];
-        DrawText(line.c_str(), 5, y_start + (row - ed.window_scroll) * font_size, font_size, BLACK);
-        DrawLine(50, y_start + (row - ed.window_scroll) * font_size + font_size, 50 + MeasureText(line.c_str(), font_size), y_start + (row - ed.window_scroll) * font_size + font_size, BLACK);
+        int row = first_visible_line + i;
+        if (row >= (int)file.lines.size())
+            break;
+
+        int y = y_start + i * font_size;
+
+        const std::string &line = file.lines[row];
+
+        DrawText(line.c_str(), x_start, y, font_size, BLACK);
+
         if (row == ed.cursor_row)
         {
-            std::string before_cursor = line.substr(0, ed.cursor_col);
-            cursor_x = MeasureText(before_cursor.c_str(), font_size);
+            int safe_col = std::min(ed.cursor_col, (int)line.length());
+            std::string before_cursor = line.substr(0, safe_col);
+
+            int cursor_x = x_start + MeasureText(before_cursor.c_str(), font_size);
+            int cursor_y = y;
+
+            if (ed.mode == INSERT)
+                DrawLine(cursor_x, cursor_y, cursor_x, cursor_y + font_size, RED);
+            else
+                DrawRectangle(cursor_x, cursor_y, 10, font_size, RED);
         }
     }
 
-    if (ed.insert_mode)
-        DrawLine(cursor_x, cursor_y, cursor_x, cursor_y + font_size, RED);
-    else
-        DrawRectangle(cursor_x, cursor_y, 10, font_size, RED);
     EndDrawing();
 }

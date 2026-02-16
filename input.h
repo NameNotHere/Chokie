@@ -1,45 +1,50 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#	include	<vector>
-#	include	<string>
-#	include	"raylib.h"
+#include <vector>
+#include <string>
+#include "raylib.h"
 
-#	define	NEWLINE_OFFSET	5
+#define NEWLINE_OFFSET 5
 
 enum e_mode
 {
-	NORMAL,
-	INSERT,
-	COMMAND,
-	MENU
+    NORMAL,
+    INSERT,
+    COMMAND,
+    MENU
 };
 
-struct  s_editor
+struct s_file
 {
-    std::vector<std::string>	lines;
-    int							cursor_row;
-    int							cursor_col;
-	float						window_scroll;
-	float						scroll_velocity;
-    bool						insert_mode;
-	bool						just_enter_input_mode;
-
+    std::string filename;
+    std::vector<std::string> lines;
 };
 
-// Input functions
-void	handle_insert_mode(s_editor &ed);
-void	handle_normal_mode(s_editor &ed);
-void	keyboard_input(s_editor &ed);
-void	draw_text(s_editor &ed);
-void	remove_last_char(s_editor &ed);
+class c_editor
+{
+public:
+    std::vector<s_file> files;
+    int cursor_row;
+    int cursor_col;
+    float window_scroll;
+    float scroll_velocity;
+    e_mode mode;
+    bool just_enter_input_mode;
+};
 
-// drawing functions
-void	draw_text(s_editor &ed);
-void	draw_cursor(s_editor &ed);
+// input
+void handle_insert_mode(c_editor &ed);
+void handle_normal_mode(c_editor &ed);
+void keyboard_input(c_editor &ed);
+void remove_last_char(c_editor &ed);
+
+// drawing
+void draw_text(c_editor &ed);
+void draw_cursor(c_editor &ed);
 
 // file handling
-std::vector<std::string> read_file(const std::string &filename);
-void save_to_file(const s_editor &ed, const std::string &filename);
+s_file open_file(const std::string &filename);
+void save_to_file(const c_editor &ed, const std::string &filename);
 
 #endif
