@@ -17,8 +17,10 @@ enum e_mode
 
 struct s_file
 {
-    std::string filename;
-    std::vector<std::string> lines;
+	int							x_start;
+	int							y_start;
+    std::string					filename;
+    std::vector<std::string>	lines;
 };
 
 class c_editor
