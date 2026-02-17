@@ -1,18 +1,16 @@
 #include "input.h"
 
-void draw_text(c_editor &ed)
+void draw_text(s_window &win, c_editor &ed)
 {
-    if (ed.files.empty())
+    s_file &file = win.otvoren_file;
+
+    if (file.lines.empty())
         return;
 
-    s_file &file = ed.files[0];
-
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-
     int font_size = 30;
-    int y_start = 5;
-    int x_start = 5;
+
+    int x_start = file.x_start + win.window_x;
+    int y_start = file.y_start + win.window_y;
 
     int first_visible_line = ed.window_scroll / font_size;
     int max_visible_lines = GetScreenHeight() / font_size + 1;
@@ -27,7 +25,7 @@ void draw_text(c_editor &ed)
 
         const std::string &line = file.lines[row];
 
-        DrawText(line.c_str(), x_start, y, font_size, BLACK);
+        DrawText(line.c_str(), x_start, y, font_size, WHITE);
 
         if (row == ed.cursor_row)
         {
@@ -43,6 +41,4 @@ void draw_text(c_editor &ed)
                 DrawRectangle(cursor_x, cursor_y, 10, font_size, RED);
         }
     }
-
-    EndDrawing();
 }

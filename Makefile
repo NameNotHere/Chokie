@@ -6,7 +6,7 @@ CXXFLAGS= -Wall -Wextra -Werror -std=c++17
 NAME    = chookie
 
 # Source files
-SRCS    = main.cpp draw.cpp files.cpp input.cpp
+SRCS    = main.cpp draw.cpp files.cpp input.cpp file_manager.cpp
 OBJS    = $(SRCS:.cpp=.o)
 
 # Raylib flags (Linux default)

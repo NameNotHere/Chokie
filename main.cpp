@@ -13,21 +13,34 @@ bool is_file_valid(const std::string& filename)
     return true;
 }
 
+s_window	create_window(int xpos, int ypos, std::string file, bool is_special)
+{
+	s_window	win;
+	win.otvoren_file.filename = file;
+	win.window_x = xpos;
+	win.window_y = ypos;
+	win.is_special = is_special;
+	win.otvoren_file = open_file(file);
+
+	return (win);
+}
+
 int main(int ac, char **av)
 {
-    c_editor ed;
-    ed.files.push_back(open_file((std::string)av[1]));
-    ed.cursor_row = 0;
-    ed.cursor_col = 0;
-    ed.window_scroll = 0;
-    ed.window_scroll = 0.0f;
-    ed.scroll_velocity = 0.0f;
-
     if (ac < 2)
     {
         std::cerr << "Usage: " << av[0] << " <filename>" << std::endl;
         return 1;
     }
+
+    c_editor ed;
+    ed.cursor_row = 0;
+    ed.cursor_col = 0;
+    ed.window_scroll = 0.0f;
+    ed.scroll_velocity = 0.0f;
+    ed.mode = NORMAL;
+
+    ed.windows.push_back(create_window(0, 0, av[1], false));
 
     InitWindow(800, 450, "Chokie");
     SetExitKey(KEY_NULL);
@@ -35,10 +48,19 @@ int main(int ac, char **av)
     while (!WindowShouldClose())
     {
         keyboard_input(ed);
-        draw_text(ed);
+
+        BeginDrawing();
+        ClearBackground(DARKGRAY);
+
+        for (auto &win : ed.windows)
+            draw_text(win, ed);
+
+        EndDrawing();
     }
 
     CloseWindow();
-    save_to_file(ed, (std::string)av[1]);
+
+    save_to_file(ed, av[1]);
+
     return 0;
 }

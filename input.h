@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "raylib.h"
+#include <iostream>
 
 #define NEWLINE_OFFSET 5
 
@@ -23,16 +24,25 @@ struct s_file
     std::vector<std::string>	lines;
 };
 
+struct  s_window
+{
+    s_file		otvoren_file;
+    long long	window_x;
+	long long	window_y;
+	bool		is_special;
+};
+
 class c_editor
 {
 public:
-    std::vector<s_file> files;
-    int cursor_row;
-    int cursor_col;
-    float window_scroll;
-    float scroll_velocity;
-    e_mode mode;
-    bool just_enter_input_mode;
+	int						focused_window = 0;
+    std::vector<s_window>	windows;
+    int 					cursor_row;
+    int						cursor_col;
+    float					window_scroll;
+    float					scroll_velocity;
+    e_mode					mode;
+    bool					just_enter_input_mode;
 };
 
 // input
@@ -42,11 +52,14 @@ void keyboard_input(c_editor &ed);
 void remove_last_char(c_editor &ed);
 
 // drawing
-void draw_text(c_editor &ed);
+void draw_text(s_window &win, c_editor &ed);
 void draw_cursor(c_editor &ed);
 
 // file handling
 s_file open_file(const std::string &filename);
 void save_to_file(const c_editor &ed, const std::string &filename);
+
+// directory handling 
+void    open_tree_view(c_editor &ed);
 
 #endif

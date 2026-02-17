@@ -4,22 +4,20 @@
 
 void save_to_file(const c_editor &ed, const std::string &filename)
 {
-    std::ofstream out(filename);
-
-    if (!out.is_open())
-    {
-        std::cerr << "Failed to open file\n";
+    if (ed.windows.empty())
         return;
-    }
-    for (size_t i = 0; i < ed.files.size(); i++)
+
+    const s_file &file = ed.windows[0].otvoren_file;
+
+    std::ofstream out(filename);
+    if (!out.is_open())
+        return;
+
+    for (size_t i = 0; i < file.lines.size(); i++)
     {
-        const s_file &file = ed.files[i];
-        for (size_t j = 0; j < file.lines.size(); j++)
-        {
-            out << file.lines[j];
-            if (j < file.lines.size() - 1)
-                out << '\n';
-        }
+        out << file.lines[i];
+        if (i != file.lines.size() - 1)
+            out << "\n";
     }
 
     out.close();
