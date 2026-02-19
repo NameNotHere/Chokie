@@ -63,7 +63,7 @@ static void handle_char_input(c_editor &ed)
 
         char c = static_cast<char>(key);
 
-        if (c >= 32 && c <= 126 && ed.mode == INSERT)
+        if (((c >= 32 && c <= 126) || c == '\n') && ed.mode == INSERT)
         {
             file->lines[ed.cursor_row].insert(ed.cursor_col, 1, c);
             ed.cursor_col++;

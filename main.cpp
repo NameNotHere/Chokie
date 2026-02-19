@@ -3,16 +3,6 @@
 #       include         "input.h"
 #       include         <fstream>
 
-bool is_file_valid(const std::string& filename)
-{
-    std::ifstream file(filename);
-
-    if (!file.is_open())
-        return false;
-
-    return true;
-}
-
 s_window	create_window(int xpos, int ypos, std::string file, bool is_special)
 {
 	s_window	win;
@@ -38,7 +28,7 @@ int main(int ac, char **av)
 
     ed.windows.push_back(create_window(0, 0, av[1], false));
 
-    InitWindow(800, 450, "Chokie");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Chokie");
     SetExitKey(KEY_NULL);
 
     while (!WindowShouldClose())

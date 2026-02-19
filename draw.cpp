@@ -35,8 +35,8 @@ void draw_text(s_window &win, c_editor &ed)
         return;
 
     int font_size = 30;
-    int x_start = file.x_start + win.window_x;
-    int y_start = file.y_start + win.window_y;
+    int x_start = win.window_x;
+    int y_start = win.window_y;
 
     int first_visible_line, max_visible_lines;
     get_visible_line_range(first_visible_line, max_visible_lines, ed);

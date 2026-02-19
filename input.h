@@ -6,7 +6,10 @@
 #include "raylib.h"
 #include <iostream>
 
-#define NEWLINE_OFFSET 5
+
+# define WINDOW_HEIGHT 1500
+# define WINDOW_WIDTH 200
+# define NEWLINE_OFFSET 5
 
 enum e_mode
 {
@@ -18,8 +21,6 @@ enum e_mode
 
 struct s_file
 {
-	int							x_start = 0;
-	int							y_start = 0;
     std::string					filename;
     std::vector<std::string>	lines;
 };
@@ -46,18 +47,19 @@ public:
 };
 
 // input
-void handle_insert_mode(c_editor &ed);
-void handle_normal_mode(c_editor &ed);
-void keyboard_input(c_editor &ed);
-void remove_last_char(c_editor &ed);
+void        handle_insert_mode(c_editor &ed);
+void        handle_normal_mode(c_editor &ed);
+void        keyboard_input(c_editor &ed);
+void        remove_last_char(c_editor &ed);
 
 // drawing
 void draw_text(s_window &win, c_editor &ed);
 void draw_cursor(c_editor &ed);
 
 // file handling
-s_file open_file(const std::string &filename);
-void save_to_file(const c_editor &ed, const std::string &filename);
+s_file      open_file(const std::string &filename);
+void        save_to_file(const c_editor &ed, const std::string &filename);
+bool        is_file_valid(const std::string& filename);
 
 // directory handling 
 void    open_tree_view(c_editor &ed);

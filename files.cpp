@@ -47,3 +47,12 @@ s_file open_file(const std::string &filename)
     file.lines = read_file(filename);
     return file;
 }
+
+bool is_file_valid(const std::string& filename)
+{
+    std::ifstream file(filename);
+
+    if (!file.is_open())
+        return false;
+    return true;
+}
