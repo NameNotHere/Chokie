@@ -18,8 +18,8 @@ enum e_mode
 
 struct s_file
 {
-	int							x_start;
-	int							y_start;
+	int							x_start = 0;
+	int							y_start = 0;
     std::string					filename;
     std::vector<std::string>	lines;
 };
@@ -27,9 +27,9 @@ struct s_file
 struct  s_window
 {
     s_file		otvoren_file;
-    long long	window_x;
-	long long	window_y;
-	bool		is_special;
+    long long	window_x = 0;
+	long long	window_y = 0;
+	bool		is_special = false;
 };
 
 class c_editor
@@ -37,12 +37,12 @@ class c_editor
 public:
 	int						focused_window = 0;
     std::vector<s_window>	windows;
-    int 					cursor_row;
-    int						cursor_col;
-    float					window_scroll;
-    float					scroll_velocity;
+    int 					cursor_row = 0;
+    int						cursor_col = 0;
+    float					window_scroll = 0;
+    float					scroll_velocity = 0;
     e_mode					mode;
-    bool					just_enter_input_mode;
+    bool					just_enter_input_mode = 0;
 };
 
 // input

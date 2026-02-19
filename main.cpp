@@ -34,10 +34,6 @@ int main(int ac, char **av)
     }
 
     c_editor ed;
-    ed.cursor_row = 0;
-    ed.cursor_col = 0;
-    ed.window_scroll = 0.0f;
-    ed.scroll_velocity = 0.0f;
     ed.mode = NORMAL;
 
     ed.windows.push_back(create_window(0, 0, av[1], false));
@@ -48,13 +44,10 @@ int main(int ac, char **av)
     while (!WindowShouldClose())
     {
         keyboard_input(ed);
-
         BeginDrawing();
         ClearBackground(DARKGRAY);
-
         for (auto &win : ed.windows)
             draw_text(win, ed);
-
         EndDrawing();
     }
 
