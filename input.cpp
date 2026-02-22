@@ -1,14 +1,14 @@
+// filepath: /home/orhan/Desktop/Cprograms/Chokie/input.cpp
 #include "input.h"
 #include <algorithm>
+#include <cstring>
 
 static s_window* get_active_window(c_editor &ed)
 {
     if (ed.windows.empty())
         return nullptr;
-
     if (ed.focused_window >= (int)ed.windows.size())
         return nullptr;
-
     return &ed.windows[ed.focused_window];
 }
 
@@ -17,204 +17,177 @@ static s_file* get_active_file(c_editor &ed)
     s_window *win = get_active_window(ed);
     if (!win)
         return nullptr;
-
     return &win->otvoren_file;
 }
 
-
-void remove_last_char(c_editor &ed)
+// pure helpers
+Cursor insert_char(s_file &file, Cursor cur, char c)
 {
-    s_file *file = get_active_file(ed);
-    if (!file || file->lines.empty())
-        return;
-
-    if (ed.cursor_col > 0)
-    {
-        file->lines[ed.cursor_row].erase(ed.cursor_col - 1, 1);
-        ed.cursor_col--;
-    }
-    else if (ed.cursor_row > 0)
-    {
-        ed.cursor_col = (int)file->lines[ed.cursor_row - 1].size();
-        file->lines[ed.cursor_row - 1] += file->lines[ed.cursor_row];
-        file->lines.erase(file->lines.begin() + ed.cursor_row);
-        ed.cursor_row--;
-    }
+    file.lines[cur.row].insert(cur.col, 1, c);
+    return {cur.row, cur.col + 1};
 }
 
-static void handle_char_input(c_editor &ed)
+Cursor remove_last_char(s_file &file, Cursor cur)
+{
+    if (cur.col > 0)
+    {
+        file.lines[cur.row].erase(cur.col - 1, 1);
+        return {cur.row, cur.col - 1};
+    }
+    if (cur.row > 0)
+    {
+        cur.col = (int)file.lines[cur.row - 1].size();
+        file.lines[cur.row - 1] += file.lines[cur.row];
+        file.lines.erase(file.lines.begin() + cur.row);
+        return {cur.row - 1, cur.col};
+    }
+    return cur;
+}
+
+Cursor split_line(s_file &file, Cursor cur)
+{
+    std::string remainder = file.lines[cur.row].substr(cur.col);
+    file.lines[cur.row].erase(cur.col);
+    file.lines.insert(file.lines.begin() + cur.row + 1, remainder);
+    return {cur.row + 1, 0};
+}
+
+ScrollState update_scroll(const s_file &file,
+                          ScrollState sc,
+                          float dt)
+{
+    constexpr float scroll_speed = 300.0f;
+    constexpr float friction     = 8.0f;
+
+    float max_scroll = std::max(0.0f,
+        (float)file.lines.size() * 30.0f - GetScreenHeight());
+
+    if (IsKeyDown(KEY_UP))
+        sc.velocity = -scroll_speed;
+    else if (IsKeyDown(KEY_DOWN))
+        sc.velocity = scroll_speed;
+    else
+        sc.velocity -= sc.velocity * friction * dt;
+
+    sc.offset += sc.velocity * dt;
+    sc.offset = std::clamp(sc.offset, 0.0f, max_scroll);
+    return sc;
+}
+
+void handle_insert_mode(c_editor &ed)
 {
     s_file *file = get_active_file(ed);
-    if (!file)
-        return;
+    if (!file) return;
 
     int key = GetCharPressed();
-
     while (key > 0)
     {
         if (ed.just_enter_input_mode)
         {
             while (key > 0)
                 key = GetCharPressed();
-
             ed.just_enter_input_mode = false;
             return;
         }
 
         char c = static_cast<char>(key);
-
-        if (((c >= 32 && c <= 126) || c == '\n') && ed.mode == INSERT)
+        if (((c >= 32 && c <= 126) || c == '\n'))
         {
-            file->lines[ed.cursor_row].insert(ed.cursor_col, 1, c);
-            ed.cursor_col++;
+            ed.cursor = insert_char(*file, ed.cursor, c);
         }
-
         key = GetCharPressed();
     }
-}
-
-static void handle_tab(c_editor &ed)
-{
-    if (ed.mode != INSERT)
-        return;
-
-    s_file *file = get_active_file(ed);
-    if (!file)
-        return;
 
     if (IsKeyPressed(KEY_TAB))
-    {
-        file->lines[ed.cursor_row].insert(ed.cursor_col, "    ");
-        ed.cursor_col += 4;
-    }
-}
-
-void handle_scroll(c_editor &ed)
-{
-    s_file *file = get_active_file(ed);
-    if (!file)
-        return;
-
-    float dt = GetFrameTime();
-    float scroll_speed = 300.0f;
-    float friction = 8.0f;
-
-    float max_scroll = std::max(
-        0.0f,
-        (float)file->lines.size() * 30.0f - GetScreenHeight());
-
-    if (IsKeyDown(KEY_UP))
-        ed.scroll_velocity = -scroll_speed;
-    else if (IsKeyDown(KEY_DOWN))
-        ed.scroll_velocity = scroll_speed;
-    else
-        ed.scroll_velocity -= ed.scroll_velocity * friction * dt;
-
-    ed.window_scroll += ed.scroll_velocity * dt;
-
-    ed.window_scroll = std::clamp(ed.window_scroll, 0.0f, max_scroll);
-}
-
-static void handle_enter(c_editor &ed)
-{
-    if (ed.mode != INSERT)
-        return;
-
-    s_file *file = get_active_file(ed);
-    if (!file)
-        return;
+        ed.cursor = insert_char(*file, ed.cursor, ' '), ed.cursor.col += 3;
 
     if (IsKeyPressed(KEY_ENTER))
-    {
-        std::string remainder =
-            file->lines[ed.cursor_row].substr(ed.cursor_col);
+        ed.cursor = split_line(*file, ed.cursor);
 
-        file->lines[ed.cursor_row] =
-            file->lines[ed.cursor_row].substr(0, ed.cursor_col);
-
-        file->lines.insert(
-            file->lines.begin() + ed.cursor_row + 1,
-            remainder);
-
-        ed.cursor_row++;
-        ed.cursor_col = 0;
-    }
-}
-
-static void handle_backspace(c_editor &ed)
-{
-    if (ed.mode != INSERT) return;
     if (IsKeyPressed(KEY_BACKSPACE))
-        remove_last_char(ed);
-}
+        ed.cursor = remove_last_char(*file, ed.cursor);
 
-static void handle_escape(c_editor &ed)
-{
     if (IsKeyPressed(KEY_ESCAPE))
         ed.mode = NORMAL;
-}
-
-void handle_insert_mode(c_editor &ed)
-{
-    handle_char_input(ed);
-    handle_tab(ed);
-    handle_enter(ed);
-    handle_backspace(ed);
-    handle_escape(ed);
 }
 
 void handle_normal_mode(c_editor &ed)
 {
     s_file *file = get_active_file(ed);
-    if (!file)
-        return;
+    if (!file) return;
 
-    if (IsKeyPressed(KEY_H) && ed.cursor_col > 0)
-        ed.cursor_col--;
-
+    if (IsKeyPressed(KEY_ENTER))
+        ed.mode = COMMAND;
+    if (IsKeyPressed(KEY_H) && ed.cursor.col > 0)
+        ed.cursor.col--;
     if (IsKeyPressed(KEY_L) &&
-        ed.cursor_col < (int)file->lines[ed.cursor_row].size())
-        ed.cursor_col++;
-
-    if (IsKeyPressed(KEY_K) && ed.cursor_row > 0)
+        ed.cursor.col < (int)file->lines[ed.cursor.row].size())
+        ed.cursor.col++;
+    if (IsKeyPressed(KEY_K) && ed.cursor.row > 0)
     {
-        ed.cursor_row--;
-        ed.cursor_col = std::min(
-            ed.cursor_col,
-            (int)file->lines[ed.cursor_row].size());
+        ed.cursor.row--;
+        ed.cursor.col = std::min(ed.cursor.col,
+                                 (int)file->lines[ed.cursor.row].size());
     }
-
     if (IsKeyPressed(KEY_J) &&
-        ed.cursor_row < (int)file->lines.size() - 1)
+        ed.cursor.row < (int)file->lines.size() - 1)
     {
-        ed.cursor_row++;
-        ed.cursor_col = std::min(
-            ed.cursor_col,
-            (int)file->lines[ed.cursor_row].size());
+        ed.cursor.row++;
+        ed.cursor.col = std::min(ed.cursor.col,
+                                 (int)file->lines[ed.cursor.row].size());
     }
-
     if (IsKeyPressed(KEY_I))
     {
         ed.just_enter_input_mode = true;
         ed.mode = INSERT;
     }
 }
+void handle_command_mode(c_editor &ed)
+{
+    int key = GetKeyPressed();
 
+    while (key > 0)
+    {
+        if (key == KEY_BACKSPACE)
+        {
+            if (!ed.command_input.empty())
+                ed.command_input.pop_back();
+        }
+        else if (key == KEY_ENTER)
+        {
+            std::cout << "Command entered: " << ed.command_input << std::endl;
 
-// =====================
-// Main Keyboard Dispatcher
-// =====================
+            if (ed.command_input == ":Q")
+            {
+                ed.mode = TREE_DIRECTORY;
+                ed.command_input.clear();
+                ed.command_input = ":";
+                return;
+            }
+            ed.command_input.clear();
+            ed.command_input = ":";
+            ed.mode = NORMAL;
+            return;
+        }
+        else if (key >= 32 && key <= 126)  // Printable ASCII
+        {
+            ed.command_input += key;
+        }
+
+        key = GetKeyPressed(); // get next queued key
+    }
+}
+
 void keyboard_input(c_editor &ed)
 {
     if (ed.mode == INSERT)
-    {
         handle_insert_mode(ed);
-    }
-    else
-    {
+    else if (ed.mode == NORMAL)
         handle_normal_mode(ed);
-        return;  // 🔥 IMPORTANT
-    }
+    else if (ed.mode == COMMAND)
+        handle_command_mode(ed);
 
-    handle_scroll(ed);
+    s_file *file = get_active_file(ed);
+    if (file)
+        ed.scroll = update_scroll(*file, ed.scroll, GetFrameTime());
 }

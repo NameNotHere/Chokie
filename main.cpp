@@ -3,18 +3,6 @@
 #       include         "input.h"
 #       include         <fstream>
 
-s_window	create_window(int xpos, int ypos, std::string file, bool is_special)
-{
-	s_window	win;
-	win.otvoren_file.filename = file;
-	win.window_x = xpos;
-	win.window_y = ypos;
-	win.is_special = is_special;
-	win.otvoren_file = open_file(file);
-
-	return (win);
-}
-
 int main(int ac, char **av)
 {
     if (ac < 2)
@@ -27,7 +15,7 @@ int main(int ac, char **av)
     ed.mode = NORMAL;
 
     ed.windows.push_back(create_window(0, 0, av[1], false));
-
+    ed.command_input = ":";
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Chokie");
     SetExitKey(KEY_NULL);
 
@@ -36,8 +24,12 @@ int main(int ac, char **av)
         keyboard_input(ed);
         BeginDrawing();
         ClearBackground(DARKGRAY);
-        for (auto &win : ed.windows)
-            draw_text(win, ed);
+        if (ed.mode == INSERT)
+            draw_text(ed.windows[ed.focused_window], ed);
+        else if (ed.mode == COMMAND)
+            draw_line_text(0, WINDOW_HEIGHT - 40, ed.command_input);
+        else if (ed.mode == TREE_DIRECTORY)
+            open_tree_view(ed);
         EndDrawing();
     }
 

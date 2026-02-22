@@ -6,47 +6,67 @@
 #include "raylib.h"
 #include <iostream>
 
-
-# define WINDOW_HEIGHT 1500
-# define WINDOW_WIDTH 200
-# define NEWLINE_OFFSET 5
+#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 1000
+#define NEWLINE_OFFSET 5
 
 enum e_mode
 {
     NORMAL,
     INSERT,
     COMMAND,
-    MENU
+    MENU,
+    TREE_DIRECTORY
+};
+
+struct Cursor
+{
+    int row = 0;
+    int col = 0;
+};
+
+struct ScrollState
+{
+    float offset = 0.f;
+    float velocity = 0.f;
 };
 
 struct s_file
 {
-    std::string					filename;
-    std::vector<std::string>	lines;
+    std::string               filename;
+    std::vector<std::string>  lines;
 };
 
-struct  s_window
+struct s_window
 {
-    s_file		otvoren_file;
-    long long	window_x = 0;
-	long long	window_y = 0;
-	bool		is_special = false;
+    s_file      otvoren_file;
+    long long   window_x = 0;
+    long long   window_y = 0;
+    bool        is_special = false;
 };
 
 class c_editor
 {
 public:
-	int						focused_window = 0;
-    std::vector<s_window>	windows;
-    int 					cursor_row = 0;
-    int						cursor_col = 0;
-    float					window_scroll = 0;
-    float					scroll_velocity = 0;
-    e_mode					mode;
-    bool					just_enter_input_mode = 0;
+    int                         focused_window = 0;
+    std::vector<s_window>       windows;
+
+    Cursor                      cursor;
+    ScrollState                 scroll;
+
+    e_mode                      mode = NORMAL;
+    std::string                 command_input;
+    bool                        just_enter_input_mode = false;
 };
 
-// input
+// helpers that operate on the minimal state they need
+Cursor      insert_char(s_file &file, Cursor cur, char c);
+Cursor      remove_last_char(s_file &file, Cursor cur);
+Cursor      split_line(s_file &file, Cursor cur);
+ScrollState update_scroll(const s_file &file,
+                          ScrollState current,
+                          float dt);
+
 void        handle_insert_mode(c_editor &ed);
 void        handle_normal_mode(c_editor &ed);
 void        keyboard_input(c_editor &ed);
@@ -55,6 +75,7 @@ void        remove_last_char(c_editor &ed);
 // drawing
 void draw_text(s_window &win, c_editor &ed);
 void draw_cursor(c_editor &ed);
+void draw_line_text(int x_start, int y, const std::string &line);
 
 // file handling
 s_file      open_file(const std::string &filename);
@@ -63,5 +84,9 @@ bool        is_file_valid(const std::string& filename);
 
 // directory handling 
 void    open_tree_view(c_editor &ed);
+s_window	create_window(int xpos, int ypos, std::string file, bool is_special);
 
-#endif
+// command mode
+void    handle_command_mode(c_editor &ed);
+
+#endif // INPUT_H
