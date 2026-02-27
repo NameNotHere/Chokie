@@ -5,7 +5,9 @@
 #include <string>
 #include "raylib.h"
 #include <iostream>
+#include    <filesystem>
 
+namespace fs = std::filesystem;
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH 1000
 #define NEWLINE_OFFSET 5
@@ -57,6 +59,9 @@ public:
     e_mode                      mode = NORMAL;
     std::string                 command_input;
     bool                        just_enter_input_mode = false;
+
+    fs::path                    current_dir = fs::current_path();
+    int                         tree_active_file = 0;
 };
 
 // helpers that operate on the minimal state they need
@@ -88,5 +93,7 @@ s_window	create_window(int xpos, int ypos, std::string file, bool is_special);
 
 // command mode
 void    handle_command_mode(c_editor &ed);
+
+void    tree_input(c_editor &ed);
 
 #endif // INPUT_H

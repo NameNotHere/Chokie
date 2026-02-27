@@ -24,12 +24,16 @@ int main(int ac, char **av)
         keyboard_input(ed);
         BeginDrawing();
         ClearBackground(DARKGRAY);
-        if (ed.mode == INSERT)
-            draw_text(ed.windows[ed.focused_window], ed);
-        else if (ed.mode == COMMAND)
-            draw_line_text(0, WINDOW_HEIGHT - 40, ed.command_input);
-        else if (ed.mode == TREE_DIRECTORY)
-            open_tree_view(ed);
+	    if (ed.mode != TREE_DIRECTORY)
+	    {
+	    	draw_text(ed.windows[ed.focused_window], ed);
+            	if (ed.mode == COMMAND)
+            		draw_line_text(0, WINDOW_HEIGHT - 40, ed.command_input);
+	    }
+	    else if (ed.mode == TREE_DIRECTORY)
+	    {
+	    	open_tree_view(ed);
+        }
         EndDrawing();
     }
 

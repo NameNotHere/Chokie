@@ -1,4 +1,3 @@
-#include    <filesystem>
 #include    "./input.h"
 
 namespace fs = std::filesystem;
@@ -14,28 +13,25 @@ s_window	create_window(int xpos, int ypos, std::string file, bool is_special)
 
 	return (win);
 }
+
 void open_tree_view(c_editor &ed)
 {
-    static int active_file = 0;
-
     int filex = 10;
     int filey = 20;
-
-    fs::path current_dir = fs::current_path();
     std::vector<fs::path> entries;
 
     // Collect entries
-    for (const auto &entry : fs::directory_iterator(current_dir))
+    for (const auto &entry : fs::directory_iterator(ed.current_dir))
         entries.push_back(entry.path());
 
     if (entries.empty())
         return;
-
+    std::cout << "lol\n";
     // Clamp selection
-    if (active_file < 0)
-        active_file = 0;
-    if (active_file >= (int)entries.size())
-        active_file = entries.size() - 1;
+    if (ed.tree_active_file < 0)
+        ed.tree_active_file = 0;
+    if (ed.tree_active_file >= (int)entries.size())
+        ed.tree_active_file = entries.size() - 1;
 
     // Draw entries
     for (int i = 0; i < (int)entries.size(); i++)
@@ -52,24 +48,33 @@ void open_tree_view(c_editor &ed)
         label += entries[i].filename().string();
 
         // Highlight active file
-        if (i == active_file)
+        if (i == ed.tree_active_file)
             DrawRectangle(5, filey - 2, 400, 12, DARKGRAY);
 
         draw_line_text(filex, filey, label);
         filey += 25;
     }
+    std::cout << "drew\n";
+}
 
-    // Navigation
+void    tree_input(c_editor &ed)
+{
+    std::vector<fs::path> entries;
+
+    // Collect entries
+    for (const auto &entry : fs::directory_iterator(ed.current_dir))
+        entries.push_back(entry.path());
+   // Navigation
     if (IsKeyPressed(KEY_DOWN))
-        active_file++;
+        ed.tree_active_file++;
 
     if (IsKeyPressed(KEY_UP))
-        active_file--;
+        ed.tree_active_file--;
 
     // Open selected file
     if (IsKeyPressed(KEY_ENTER))
     {
-        fs::path selected = entries[active_file];
+        fs::path selected = entries[ed.tree_active_file];
 
         if (fs::is_regular_file(selected))
         {
@@ -79,7 +84,9 @@ void open_tree_view(c_editor &ed)
         else if (fs::is_directory(selected))
         {
             fs::current_path(selected);  // Enter directory
-            active_file = 0;
+            ed.tree_active_file = 0;
         }
     }
+    if (IsKeyPressed(KEY_ESCAPE) && ed.mode == TREE_DIRECTORY)
+	    ed.mode = NORMAL;
 }

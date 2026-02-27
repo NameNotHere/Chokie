@@ -1,4 +1,3 @@
-// filepath: /home/orhan/Desktop/Cprograms/Chokie/input.cpp
 #include "input.h"
 #include <algorithm>
 #include <cstring>
@@ -79,35 +78,31 @@ void handle_insert_mode(c_editor &ed)
     s_file *file = get_active_file(ed);
     if (!file) return;
 
-    int key = GetCharPressed();
-    while (key > 0)
+    // --- Handle text input ---
+    int c = GetCharPressed();
+    while (c > 0)
     {
-        if (ed.just_enter_input_mode)
+        if (c >= 32 && c <= 126) // printable ASCII only
         {
-            while (key > 0)
-                key = GetCharPressed();
-            ed.just_enter_input_mode = false;
-            return;
+            ed.cursor = insert_char(*file, ed.cursor, (char)c);
         }
-
-        char c = static_cast<char>(key);
-        if (((c >= 32 && c <= 126) || c == '\n'))
-        {
-            ed.cursor = insert_char(*file, ed.cursor, c);
-        }
-        key = GetCharPressed();
+        c = GetCharPressed();
     }
 
-    if (IsKeyPressed(KEY_TAB))
-        ed.cursor = insert_char(*file, ed.cursor, ' '), ed.cursor.col += 3;
-
+    // --- Handle control keys ---
     if (IsKeyPressed(KEY_ENTER))
         ed.cursor = split_line(*file, ed.cursor);
 
     if (IsKeyPressed(KEY_BACKSPACE))
         ed.cursor = remove_last_char(*file, ed.cursor);
 
-    if (IsKeyPressed(KEY_ESCAPE))
+    if (IsKeyPressed(KEY_TAB))
+    {
+        for (int i = 0; i < 4; i++)
+            ed.cursor = insert_char(*file, ed.cursor, ' ');
+    }
+
+    if (IsKeyPressed(KEY_ESCAPE) && ed.mode == INSERT)
         ed.mode = NORMAL;
 }
 
@@ -138,10 +133,12 @@ void handle_normal_mode(c_editor &ed)
     }
     if (IsKeyPressed(KEY_I))
     {
-        ed.just_enter_input_mode = true;
         ed.mode = INSERT;
     }
+    if (IsKeyPressed(KEY_ESCAPE) && ed.mode == NORMAL)
+	    ed.mode = TREE_DIRECTORY;
 }
+
 void handle_command_mode(c_editor &ed)
 {
     int key = GetKeyPressed();
@@ -153,11 +150,16 @@ void handle_command_mode(c_editor &ed)
             if (!ed.command_input.empty())
                 ed.command_input.pop_back();
         }
+	else if (key == KEY_ESCAPE && ed.mode == COMMAND)
+	{
+		ed.mode = TREE_DIRECTORY;
+		break ;
+	}
         else if (key == KEY_ENTER)
         {
             std::cout << "Command entered: " << ed.command_input << std::endl;
 
-            if (ed.command_input == ":Q")
+            if (ed.command_input == ":q")
             {
                 ed.mode = TREE_DIRECTORY;
                 ed.command_input.clear();
@@ -173,7 +175,6 @@ void handle_command_mode(c_editor &ed)
         {
             ed.command_input += key;
         }
-
         key = GetKeyPressed(); // get next queued key
     }
 }
@@ -186,7 +187,8 @@ void keyboard_input(c_editor &ed)
         handle_normal_mode(ed);
     else if (ed.mode == COMMAND)
         handle_command_mode(ed);
-
+    else if (ed.mode == TREE_DIRECTORY)
+        tree_input(ed);    
     s_file *file = get_active_file(ed);
     if (file)
         ed.scroll = update_scroll(*file, ed.scroll, GetFrameTime());
