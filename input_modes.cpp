@@ -22,16 +22,20 @@ void    tree_input(c_editor &ed)
 {
     std::vector<fs::path> entries;
 
-    // Collect entries
     for (const auto &entry : fs::directory_iterator(ed.current_dir))
         entries.push_back(entry.path());
 
     if (IsKeyPressed(KEY_DOWN))
-        ed.tree_active_file++;
+            ed.tree_active_file++;
     if (IsKeyPressed(KEY_UP))
-        ed.tree_active_file--;
-    if (IsKeyPressed(KEY_TAB)) // check y pos 
-        ed.tree_active_file++;
+            ed.tree_active_file--;
+    if (IsKeyPressed(KEY_TAB))
+    {
+        if ((long unsigned int)ed.file_view  >= ed.windows.size() - 1)
+            ed.file_view = 0;
+        else
+            ed.file_view++;
+    }
     if (IsKeyPressed(KEY_ESCAPE) && ed.mode == TREE_DIRECTORY)
         ed.mode = NORMAL;
     if (IsKeyPressed(KEY_ENTER))

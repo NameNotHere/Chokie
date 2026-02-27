@@ -20,6 +20,8 @@ void open_tree_view(c_editor &ed)
     if (ed.tree_active_file >= (int)entries.size())
         ed.tree_active_file = entries.size() - 1;
 
+    DrawRectangle(WINDOW_WIDTH / 2, (ed.file_view * 25) + 70, 100, 25, BLACK);
+
     // Draw entries
     for (int i = 0; i < (int)entries.size(); i++)
     {
@@ -31,13 +33,10 @@ void open_tree_view(c_editor &ed)
             label = "[FILE] ";
         else
             label = "[OTHER] ";
-
         label += entries[i].filename().string();
 
-        // Highlight active file
         if (i == ed.tree_active_file)
             DrawRectangle(5, filey + 5, 400, 20, RED);
-
         draw_line_text(filex, filey, label, ed.font_size);
         filey += 25;
     }

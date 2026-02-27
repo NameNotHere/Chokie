@@ -8,7 +8,7 @@ NAME    = chookie
 # Source files
 SRCS    = main.cpp draw.cpp files.cpp \
           input_helpers.cpp input_modes.cpp \
-          file_manager.cpp command_hun.cpp
+          command_hun.cpp
 OBJS    = $(SRCS:.cpp=.o)
 
 # Raylib flags (Linux default)

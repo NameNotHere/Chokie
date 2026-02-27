@@ -59,6 +59,8 @@ class c_editor
 public:
     int                         focused_window = 0;
     std::vector<s_window>       windows;
+    bool                        view_opened_file = false;
+    int                         file_view = 0;
 
     Cursor                      cursor;
 

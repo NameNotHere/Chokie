@@ -1,6 +1,5 @@
 #include "input.h"
 
-// utility used only in this file
 static void get_visible_line_range(int &first_line, int &max_lines,
                                    const s_file &file,
                                    int font_size)
