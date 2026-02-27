@@ -2,22 +2,22 @@
 
 // utility used only in this file
 static void get_visible_line_range(int &first_line, int &max_lines,
-                                   c_editor &ed)
+                                   const s_file &file,
+                                   int font_size)
 {
-    int font_size = 30;
-    first_line = static_cast<int>(ed.scroll.offset) / font_size;
+    first_line = static_cast<int>(file.scroll.offset) / font_size;
     max_lines = GetScreenHeight() / font_size + 1;
 }
 
-void draw_line_text(int x_start, int y, const std::string &line)
+void draw_line_text(int x_start, int y, const std::string &line,
+                    int font_size)
 {
-    int font_size = 30;
     DrawText(line.c_str(), x_start, y, font_size, WHITE);
 }
 
-void draw_cursor(int x_start, int y, const std::string &line, c_editor &ed)
+void draw_cursor(int x_start, int y, const std::string &line,
+                 c_editor &ed, int font_size)
 {
-    int font_size = 30;
     int safe_col = std::min(ed.cursor.col, (int)line.length());
     std::string before_cursor = line.substr(0, safe_col);
 
@@ -36,12 +36,13 @@ void draw_text(s_window &win, c_editor &ed)
     if (file.lines.empty())
         return;
 
-    int font_size = 30;
+    int font_size = ed.font_size;
     int x_start = win.window_x;
     int y_start = win.window_y;
 
     int first_visible_line, max_visible_lines;
-    get_visible_line_range(first_visible_line, max_visible_lines, ed);
+    get_visible_line_range(first_visible_line, max_visible_lines,
+                           file, font_size);
 
     for (int i = 0; i < max_visible_lines; i++)
     {
@@ -52,9 +53,9 @@ void draw_text(s_window &win, c_editor &ed)
         int y = y_start + i * font_size;
         const std::string &line = file.lines[row];
 
-        draw_line_text(x_start, y, line);
+        draw_line_text(x_start, y, line, font_size);
 
         if (row == ed.cursor.row)
-            draw_cursor(x_start, y, line, ed);
+            draw_cursor(x_start, y, line, ed, font_size);
     }
 }

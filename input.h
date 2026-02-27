@@ -1,21 +1,23 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <vector>
-#include <string>
-#include "raylib.h"
-#include <iostream>
+#include    <vector>
+#include    <string>
+#include    "raylib.h"
+#include    <iostream>
 #include    <filesystem>
 
 namespace fs = std::filesystem;
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH 1000
 #define NEWLINE_OFFSET 5
+#define TAB_SIZE 4
 
 enum e_mode
 {
     NORMAL,
     INSERT,
+    REPPLACE,
     COMMAND,
     MENU,
     TREE_DIRECTORY
@@ -37,7 +39,11 @@ struct s_file
 {
     std::string               filename;
     std::vector<std::string>  lines;
+    int                       x;
+    int                       y;
+    ScrollState               scroll;
 };
+
 
 struct s_window
 {
@@ -54,7 +60,9 @@ public:
     std::vector<s_window>       windows;
 
     Cursor                      cursor;
-    ScrollState                 scroll;
+
+    // global font size used for rendering
+    int                         font_size = 30;
 
     e_mode                      mode = NORMAL;
     std::string                 command_input;
@@ -74,13 +82,15 @@ ScrollState update_scroll(const s_file &file,
 
 void        handle_insert_mode(c_editor &ed);
 void        handle_normal_mode(c_editor &ed);
-void        keyboard_input(c_editor &ed);
+int         keyboard_input(c_editor &ed);
 void        remove_last_char(c_editor &ed);
 
 // drawing
 void draw_text(s_window &win, c_editor &ed);
-void draw_cursor(c_editor &ed);
-void draw_line_text(int x_start, int y, const std::string &line);
+void draw_cursor(int x_start, int y, const std::string &line,
+                 c_editor &ed, int font_size = 30);
+void draw_line_text(int x_start, int y, const std::string &line,
+                    int font_size = 30);
 
 // file handling
 s_file      open_file(const std::string &filename);
@@ -90,9 +100,6 @@ bool        is_file_valid(const std::string& filename);
 // directory handling 
 void    open_tree_view(c_editor &ed);
 s_window	create_window(int xpos, int ypos, std::string file, bool is_special);
-
-// command mode
-void    handle_command_mode(c_editor &ed);
 
 void    tree_input(c_editor &ed);
 

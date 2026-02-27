@@ -7,7 +7,7 @@ void save_to_file(const c_editor &ed, const std::string &filename)
     if (ed.windows.empty())
         return;
 
-    const s_file &file = ed.windows[0].otvoren_file;
+    const s_file &file = ed.windows[ed.focused_window].otvoren_file;
 
     std::ofstream out(filename);
     if (!out.is_open())
@@ -45,6 +45,12 @@ s_file open_file(const std::string &filename)
     s_file file;
     file.filename = filename;
     file.lines = read_file(filename);
+
+    // default positioning/appearance state
+    file.x = 0;
+    file.y = 0;
+    file.scroll = ScrollState{};
+
     return file;
 }
 
