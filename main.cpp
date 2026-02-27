@@ -1,5 +1,6 @@
 #       include         <iostream>
 #       include         "input.h"
+#       include         "fstream"
 
 void open_tree_view(c_editor &ed)
 {
@@ -40,6 +41,14 @@ void open_tree_view(c_editor &ed)
         draw_line_text(filex, filey, label, ed.font_size);
         filey += 25;
     }
+    draw_line_text(WINDOW_WIDTH / 2, 0, "file explorer", 60);
+    filey = 70;
+    filex = WINDOW_WIDTH / 2;
+    for (const auto &entry : ed.windows)
+    {
+        draw_line_text(filex, filey, entry.otvoren_file.FILEPATH, ed.font_size);
+        filey += 25;
+    }
 }
 
 int handle_windows(c_editor &ed)
@@ -65,7 +74,7 @@ int main(int ac, char **av)
 {
     if (ac < 2)
     {
-        std::cerr << "Usage: " << av[0] << " <filename>" << std::endl;
+        std::cerr << "Usage: " << av[0] << " <filepath>" << std::endl;
         return 1;
     }
 

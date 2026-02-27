@@ -2,14 +2,14 @@
 #include <fstream>
 #include <iostream>
 
-void save_to_file(const c_editor &ed, const std::string &filename)
+void save_to_file(const c_editor &ed, const std::string &filepath)
 {
     if (ed.windows.empty())
         return;
 
     const s_file &file = ed.windows[ed.focused_window].otvoren_file;
 
-    std::ofstream out(filename);
+    std::ofstream out(filepath);
     if (!out.is_open())
         return;
 
@@ -23,10 +23,10 @@ void save_to_file(const c_editor &ed, const std::string &filename)
     out.close();
 }
 
-std::vector<std::string> read_file(const std::string &filename)
+std::vector<std::string> read_file(const std::string &filepath)
 {
     std::vector<std::string> lines;
-    std::ifstream file(filename);
+    std::ifstream file(filepath);
     std::string line;
     if (file.is_open())
     {
@@ -40,11 +40,11 @@ std::vector<std::string> read_file(const std::string &filename)
     return lines;
 }
 
-s_file open_file(const std::string &filename)
+s_file open_file(const std::string &filepath)
 {
     s_file file;
-    file.filename = filename;
-    file.lines = read_file(filename);
+    file.FILEPATH = filepath;
+    file.lines = read_file(filepath);
 
     // default positioning/appearance state
     file.x = 0;
@@ -54,9 +54,9 @@ s_file open_file(const std::string &filename)
     return file;
 }
 
-bool is_file_valid(const std::string& filename)
+bool is_file_valid(const std::string& filepath)
 {
-    std::ifstream file(filename);
+    std::ifstream file(filepath);
 
     if (!file.is_open())
         return false;

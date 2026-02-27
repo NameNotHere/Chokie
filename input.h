@@ -37,6 +37,7 @@ struct ScrollState
 
 struct s_file
 {
+    std::string               FILEPATH;
     std::string               filename;
     std::vector<std::string>  lines;
     int                       x;
@@ -93,9 +94,9 @@ void draw_line_text(int x_start, int y, const std::string &line,
                     int font_size = 30);
 
 // file handling
-s_file      open_file(const std::string &filename);
-void        save_to_file(const c_editor &ed, const std::string &filename);
-bool        is_file_valid(const std::string& filename);
+s_file      open_file(const std::string &filepath);
+void        save_to_file(const c_editor &ed, const std::string &filepath);
+bool        is_file_valid(const std::string& filepath);
 
 // directory handling 
 void    open_tree_view(c_editor &ed);

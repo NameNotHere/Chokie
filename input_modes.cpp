@@ -30,6 +30,8 @@ void    tree_input(c_editor &ed)
         ed.tree_active_file++;
     if (IsKeyPressed(KEY_UP))
         ed.tree_active_file--;
+    if (IsKeyPressed(KEY_TAB)) // check y pos 
+        ed.tree_active_file++;
     if (IsKeyPressed(KEY_ESCAPE) && ed.mode == TREE_DIRECTORY)
         ed.mode = NORMAL;
     if (IsKeyPressed(KEY_ENTER))
@@ -145,7 +147,7 @@ int handle_command_mode(c_editor &ed)
         if (strcmp(ed.command_input.c_str(), ":w") == 0)
         {
             if (!ed.windows.empty())
-                save_to_file(ed, ed.windows[ed.focused_window].otvoren_file.filename);
+                save_to_file(ed, ed.windows[ed.focused_window].otvoren_file.FILEPATH);
         }
         if (strcmp(ed.command_input.c_str(), ":q") == 0)
         {
