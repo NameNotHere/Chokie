@@ -20,8 +20,6 @@ void open_tree_view(c_editor &ed)
     if (ed.tree_active_file >= (int)entries.size())
         ed.tree_active_file = entries.size() - 1;
 
-    DrawRectangle(WINDOW_WIDTH / 2, (ed.file_view * 25) + 70, 100, 25, BLACK);
-
     // Draw entries
     for (int i = 0; i < (int)entries.size(); i++)
     {
@@ -45,6 +43,8 @@ void open_tree_view(c_editor &ed)
     filex = WINDOW_WIDTH / 2;
     for (const auto &entry : ed.windows)
     {
+        if ((filey - 70) / 25 == ed.file_view)
+            DrawRectangle(filex, filey, 50, 20, BLACK);
         draw_line_text(filex, filey, entry.otvoren_file.FILEPATH, ed.font_size);
         filey += 25;
     }
@@ -54,8 +54,8 @@ int handle_windows(c_editor &ed)
 {
     if (ed.windows.empty())
         return -1;
-    if (ed.focused_window >= (int)ed.windows.size())
-        return -1;
+    while (ed.focused_window >= (int)ed.windows.size())
+        ed.focused_window--;
     if (ed.mode != TREE_DIRECTORY)
 	{
 		draw_text(ed.windows[ed.focused_window], ed);

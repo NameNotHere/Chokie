@@ -53,6 +53,10 @@ void    tree_input(c_editor &ed)
             ed.tree_active_file = 0;
         }
     }
+    if (IsKeyPressed(KEY_SPACE))
+    {
+        ed.focused_window = ed.file_view;
+    }
     if (IsKeyPressed(KEY_ESCAPE) && ed.mode == TREE_DIRECTORY)
 	    ed.mode = NORMAL;
 }
