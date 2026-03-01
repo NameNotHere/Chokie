@@ -45,7 +45,10 @@ struct s_file
     ScrollState               scroll;
 };
 
-
+// what if we make the vector of files part of a window 
+// we then move everything to the window struct 
+// we need to make the drawing based on files/windows or special windows which get treated diff
+// we can handle multiple files (windows) at once 
 struct s_window
 {
     s_file      otvoren_file;
@@ -61,16 +64,11 @@ public:
     std::vector<s_window>       windows;
     bool                        view_opened_file = false;
     int                         file_view = 0;
-
     Cursor                      cursor;
-
-    // global font size used for rendering
     int                         font_size = 30;
-
     e_mode                      mode = NORMAL;
     std::string                 command_input;
     bool                        just_enter_input_mode = false;
-
     fs::path                    current_dir = fs::current_path();
     int                         tree_active_file = 0;
 };

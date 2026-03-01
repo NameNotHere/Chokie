@@ -184,7 +184,7 @@ int keyboard_input(c_editor &ed)
     else if (ed.mode == TREE_DIRECTORY)
         tree_input(ed);
     s_file *file = get_active_file(ed);
-    if (file)
+    if (file && ed.mode != TREE_DIRECTORY)
         file->scroll = update_scroll(*file, file->scroll, GetFrameTime());
     return 0;
 }
