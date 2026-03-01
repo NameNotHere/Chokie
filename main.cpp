@@ -7,24 +7,21 @@ void open_tree_view(c_editor &ed)
     int filex = 10;
     int filey = 20;
     std::vector<fs::path> entries;
-
-    // Collect entries
+    std::string label;
+    
     for (const auto &entry : fs::directory_iterator(ed.current_dir))
         entries.push_back(entry.path());
 
     if (entries.empty())
         return;
-    // Clamp selection
+
     if (ed.tree_active_file < 0)
         ed.tree_active_file = 0;
     if (ed.tree_active_file >= (int)entries.size())
         ed.tree_active_file = entries.size() - 1;
 
-    // Draw entries
     for (int i = 0; i < (int)entries.size(); i++)
     {
-        std::string label;
-
         if (fs::is_directory(entries[i]))
             label = "[DIR]  ";
         else if (fs::is_regular_file(entries[i]))
@@ -50,7 +47,7 @@ void open_tree_view(c_editor &ed)
     }
 }
 
-int handle_windows(c_editor &ed)
+int draw_windows(c_editor &ed)
 {
     if (ed.windows.empty())
         return -1;
@@ -91,7 +88,7 @@ int main(int ac, char **av)
             break ;
         BeginDrawing();
         ClearBackground(DARKGRAY);
-	    if (handle_windows(ed) == -1)
+	    if (draw_windows(ed) == -1)
             return 1;
         EndDrawing();
     }

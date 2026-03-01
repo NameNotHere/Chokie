@@ -25,6 +25,16 @@ void    tree_input(c_editor &ed)
     for (const auto &entry : fs::directory_iterator(ed.current_dir))
         entries.push_back(entry.path());
 
+    // we need a way to navigate and handle opened files not just open them again
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
     if (IsKeyPressed(KEY_DOWN))
             ed.tree_active_file++;
     if (IsKeyPressed(KEY_UP))
